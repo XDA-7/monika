@@ -1,0 +1,22 @@
+{
+  "name": "monika",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XDA-7/monika.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XDA-7/monika/issues"
+  },
+  "homepage": "https://github.com/XDA-7/monika#readme",
+  "dependencies": {
+    "discord.js": "^11.3.2"
+  }
+}
