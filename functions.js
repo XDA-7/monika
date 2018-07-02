@@ -145,6 +145,45 @@ module.exports.playerHitBlackjack = function(username) {
 }
 
 /**
+ * @param {string} username
+ * @returns {BlackjackResult}
+ */
+module.exports.playerSitBlackjack = function(username) {
+    var game = db.getBlackjackGame(username)
+    if (!game) {
+        return { error: 'you aren\'t currently in a game' }
+    }
+
+    var monikaHandValue = blackjackHandValue(game.monikaHand)
+    var playerHandValue = blackjackHandValue(game.playerHand)
+    while (monikaHandValue < 17) {
+        game.monikaHand.push(randomCard())
+        monikaHandValue = blackjackHandValue(game.monikaHand)
+    }
+
+    var message = ''
+    if (monikaHandValue > 21 || monikaHandValue < playerHandValue) {
+        var player = db.getPlayer(username)
+        // payout of 3:2 but the bet amount was already deducted from the player
+        player.credits += Math.floor(game.betAmount * 2.5)
+        message = (monikaHandValue > 21) ? 'Dealer bust!' : 'You win!'
+        message += appendPayout(Math.floor(game.betAmount * 1.5))
+    }
+    else {
+        message = 'House wins' +
+        appendPayout(-game.betAmount)
+    }
+
+    game.gameEnded = true
+    return {
+        playerHand: getHandString(game.playerHand),
+        monikaHand: getHandString(game.monikaHand),
+        message: message,
+        handMessageId: game.handMessageId
+    }
+}
+
+/**
  * @returns {Card}
  */
 function randomCard() {

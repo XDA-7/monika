@@ -101,22 +101,63 @@ client.on('message', function(message) {
             else {
                 message.channel.messages.get(blackjackHitResult.handMessageId).edit(
                     ['Dealer\'s hand:\n']
-                        .concat(
-                            blackjackHitResult.monikaHand.map(function(cardName) {
-                                var id = db.cardEmojis[cardName]
-                                return message.guild.emojis.get(id).toString()
-                            })
-                        )
-                        .concat(['\n' + username + '\'s hand:\n'])
-                        .concat(
-                            blackjackHitResult.playerHand.map(function(cardName) {
-                                var id = db.cardEmojis[cardName]
-                                return message.guild.emojis.get(id).toString()
-                            })
-                        )
-                        .join('')
+                    .concat(
+                        blackjackHitResult.monikaHand.map(function(cardName) {
+                            var id = db.cardEmojis[cardName]
+                            return message.guild.emojis.get(id).toString()
+                        })
+                    )
+                    .concat(['\n' + username + '\'s hand:\n'])
+                    .concat(
+                        blackjackHitResult.playerHand.map(function(cardName) {
+                            var id = db.cardEmojis[cardName]
+                            return message.guild.emojis.get(id).toString()
+                        })
+                    )
+                    .join('')
                 )
                 message.channel.send(blackjackHitResult.message)
+                message.delete()
+            }
+        }
+
+        if (args[0] == '!sit') {
+            var blackjackSitResult = f.playerSitBlackjack(username)
+            if (blackjackSitResult.error) {
+                message.channel.send('Error! ' + blackjackSitResult.error)
+            }
+            else {
+                var handMessage = message.channel.messages.get(blackjackSitResult.handMessageId)
+                var remainingMonikaCards = blackjackSitResult.monikaHand.slice(2)
+                var listedMonikaCards = blackjackSitResult.monikaHand.slice(0, 2)
+                for (var i = 1; i <= remainingMonikaCards.length; i++) {
+                    setTimeout(function() {
+                        listedMonikaCards.push(remainingMonikaCards.shift())
+                        handMessage.edit(
+                            ['Dealer\'s hand:\n']
+                            .concat(
+                                listedMonikaCards.map(function(cardName) {
+                                    var id = db.cardEmojis[cardName]
+                                    return message.guild.emojis.get(id).toString()
+                                })
+                            )
+                            .concat(['\n' + username + '\'s hand:\n'])
+                            .concat(
+                                blackjackSitResult.playerHand.map(function(cardName) {
+                                    var id = db.cardEmojis[cardName]
+                                    return message.guild.emojis.get(id).toString()
+                                })
+                            )
+                            .join('')
+                        )
+                    },
+                    1000 * i)
+                }
+
+                setTimeout(function() {
+                    message.channel.send(blackjackSitResult.message)
+                },
+                (remainingMonikaCards.length * 1000) + 500)
                 message.delete()
             }
         }
