@@ -77,7 +77,8 @@ module.exports.db = {
         blackten: '462521805937049601',
         blackjack: '462521805769539584',
         blackqueen: '462521805941506048',
-        blackking: '462521805874135041'
+        blackking: '462521805874135041',
+        cardback: '464357956222189579'
     },
 
     /**

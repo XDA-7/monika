@@ -156,7 +156,7 @@ module.exports.playerSitBlackjack = function(username) {
 
     var monikaHandValue = blackjackHandValue(game.monikaHand)
     var playerHandValue = blackjackHandValue(game.playerHand)
-    while (monikaHandValue < 17) {
+    while (monikaHandValue < 17 && monikaHandValue < playerHandValue) {
         game.monikaHand.push(randomCard())
         monikaHandValue = blackjackHandValue(game.monikaHand)
     }
@@ -168,6 +168,11 @@ module.exports.playerSitBlackjack = function(username) {
         player.credits += Math.floor(game.betAmount * 2.5)
         message = (monikaHandValue > 21) ? 'Dealer bust!' : 'You win!'
         message += appendPayout(Math.floor(game.betAmount * 1.5))
+    }
+    else if (monikaHandValue == playerHandValue) {
+        var player = db.getPlayer(username)
+        player.credits += Math.floor(game.betAmount)
+        message = 'It\'s a tie'
     }
     else {
         message = 'House wins' +

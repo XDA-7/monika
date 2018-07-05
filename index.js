@@ -71,12 +71,18 @@ client.on('message', function(message) {
                     var game = db.getBlackjackGame(username)
                     message.channel.send(
                         ['Dealer\'s hand:\n']
-                        .concat(
-                            startBlackjackResult.monikaHand.map(function(cardName) {
-                                var id = db.cardEmojis[cardName]
-                                return message.guild.emojis.get(id).toString()
-                            })
-                        )
+                        .concat([
+                            message.guild.emojis.get(
+                                db.cardEmojis[startBlackjackResult.monikaHand[0]]
+                            )
+                            .toString()
+                        ])
+                        .concat([
+                            message.guild.emojis.get(
+                                db.cardEmojis['cardback']
+                            )
+                            .toString()
+                        ])
                         .concat(['\n' + username + '\'s hand:\n'])
                         .concat(
                             startBlackjackResult.playerHand.map(function(cardName) {
@@ -101,12 +107,18 @@ client.on('message', function(message) {
             else {
                 message.channel.messages.get(blackjackHitResult.handMessageId).edit(
                     ['Dealer\'s hand:\n']
-                    .concat(
-                        blackjackHitResult.monikaHand.map(function(cardName) {
-                            var id = db.cardEmojis[cardName]
-                            return message.guild.emojis.get(id).toString()
-                        })
-                    )
+                    .concat([
+                        message.guild.emojis.get(
+                            db.cardEmojis[blackjackHitResult.monikaHand[0]]
+                        )
+                        .toString()
+                    ])
+                    .concat([
+                        message.guild.emojis.get(
+                            db.cardEmojis['cardback']
+                        )
+                        .toString()
+                    ])
                     .concat(['\n' + username + '\'s hand:\n'])
                     .concat(
                         blackjackHitResult.playerHand.map(function(cardName) {
@@ -128,8 +140,9 @@ client.on('message', function(message) {
             }
             else {
                 var handMessage = message.channel.messages.get(blackjackSitResult.handMessageId)
-                var remainingMonikaCards = blackjackSitResult.monikaHand.slice(2)
-                var listedMonikaCards = blackjackSitResult.monikaHand.slice(0, 2)
+                // Start at one to have the hidden card flipped
+                var remainingMonikaCards = blackjackSitResult.monikaHand.slice(1)
+                var listedMonikaCards = [blackjackSitResult.monikaHand[0]]
                 for (var i = 1; i <= remainingMonikaCards.length; i++) {
                     setTimeout(function() {
                         listedMonikaCards.push(remainingMonikaCards.shift())
