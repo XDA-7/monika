@@ -110,7 +110,8 @@ module.exports.startBlackjack = function (username, betAmount) {
 
     return {
         playerHand: getHandString(playerCards),
-        monikaHand: getHandString(monikaCards)
+        monikaHand: getHandString(monikaCards),
+        message: 'You\'re now on ' + blackjackHandValue(playerCards)
     }
 }
 

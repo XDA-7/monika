@@ -90,6 +90,7 @@ client.on('message', function(message) {
                                 return message.guild.emojis.get(id).toString()
                             })
                         )
+                        .concat(['\n' + startBlackjackResult.message])
                         .join('')
                     )
                     .then(function(message) {
@@ -126,10 +127,9 @@ client.on('message', function(message) {
                             return message.guild.emojis.get(id).toString()
                         })
                     )
+                    .concat(['\n' + blackjackHitResult.message])
                     .join('')
                 )
-                message.channel.send(blackjackHitResult.message)
-                message.delete()
             }
         }
 
@@ -171,11 +171,10 @@ client.on('message', function(message) {
                     message.channel.send(blackjackSitResult.message)
                 },
                 (remainingMonikaCards.length * 1000) + 500)
-                message.delete()
             }
         }
 
-        if (args[0] == '!debug') {
+        if (args[0] == '!debug' && username == 'XDA-7') {
             if (args[1] == 'db') {
                 message.channel.send(JSON.stringify(db))
             }
@@ -255,6 +254,9 @@ client.on('message', function(message) {
                     message.channel.send('I haven\'t sent a message since last restart')
                 }
             }
+        }
+        else if (args[0] == '!debug') {
+            message.channel.send('No! Bad ' + username + '! Bad!')
         }
 
         db.save()

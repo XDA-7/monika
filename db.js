@@ -1,4 +1,18 @@
 var fs = require('fs')
+var Client = require('pg').Client
+
+var connectionString = ''
+if (process.env.DATABASE_URL) {
+    connectionString = process.env.DATABASE_URL
+}
+else {
+    connectionString = 'postgres://uddurrthmgjxyj:9d8f0dcc5c567652b65bb91f6fa05329128c451902a4524ee77a0e9e60f3976b@ec2-54-227-240-7.compute-1.amazonaws.com:5432/dctp29alhhddar'
+}
+
+var client = new Client({
+    connectionString: connectionString,
+    ssl: true
+})
 
 /**
  * @typedef {Object} Player
@@ -112,7 +126,40 @@ module.exports.db = {
         return undefined
     },
 
+    save: function() {
+        client.query(
+            'UPDATE game_state SET value = $1',
+            [JSON.stringify(this)],
+            function(err) {
+                if (err) {
+                    console.log(err.message)
+                }
+            }
+        )
+    },
+
     load: function() {
+        var self = this
+        client.connect()
+        .then(function() {
+            client.query('SELECT value FROM game_state', function(err, res) {
+                if (err) {
+                    console.log(err.message)
+                }
+
+                if (res.rowCount == 1) {
+                    var gameState = JSON.parse(res.rows[0].value)
+                    self.players = gameState.players
+                    self.blackjackGames = gameState.blackjackGames
+                }
+                else {
+                    client.query('INSERT INTO game_state (value) VALUES($1)', [JSON.stringify(self)])
+                }
+            })
+        })
+    },
+
+    loadFromFile: function() {
         var self = this
         fs.readFile('db.json', function(err, data) {
             if (err) {
@@ -124,7 +171,7 @@ module.exports.db = {
         })
     },
 
-    save: function() {
+    saveToFile: function() {
         fs.writeFile('db.json', JSON.stringify(this), function(err) {
             if (err) {
                 console.log(err)
