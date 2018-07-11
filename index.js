@@ -10,6 +10,10 @@ client.on('ready', function() {
 })
 
 client.on('message', function(message) {
+    if (message == '!version') {
+        message.channel.send('v0.1.0')
+    }
+
     if (message == '!help') {
         message.author.send(db.help)
     }
