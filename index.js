@@ -267,4 +267,4 @@ client.on('message', function(message) {
     }
 })
 
-client.login('NDYyMjAwMTM2ODQ4NjM3OTcy.DheZSg.llnB8faEVbkiWoAgFjfqzT0vwAY')
+client.login(process.env.TOKEN)
