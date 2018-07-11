@@ -19,7 +19,7 @@ client.on('message', function(message) {
     }
 
     if (message == '!anxiety') {
-        message.channel.send('Don\'t worry, I\'ll always love you.')
+        message.author.send('Don\'t worry, I\'ll always love you.')
     }
 
     var content = message.content

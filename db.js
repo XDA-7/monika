@@ -189,5 +189,7 @@ module.exports.db = {
     '!anxiety: some encouragement for when you\'re feeling down or inadequate\n' +
     '!start: start playing in the casino, starting with 10000 credits\n' +
     '!credits: check your current credit balance\n' +
-    '!dice: guess the result of a dice roll. First number is the amount you want to bet, second number is your guess'
+    '!dice: guess the result of a dice roll. First number is the amount you want to bet, second number is your guess\n' +
+    '!blackjack: play a game of blackjack. Enter the amount you want to bet\n' +
+    '!hit, !sit: options while in a game of blackjack'
 }
