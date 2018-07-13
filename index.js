@@ -11,7 +11,7 @@ client.on('ready', function() {
 
 client.on('message', function(message) {
     if (message == '!version') {
-        message.channel.send('v0.1.0')
+        message.channel.send('v0.1.1')
     }
 
     if (message == '!help') {
@@ -30,23 +30,15 @@ client.on('message', function(message) {
     var username = message.author.username
     if (content.slice(0, 1) == '!') {
         var args = content.split(' ')
-        if (args[0] == '!start') {
-            if (args[1] == 'as') {
-                username = args[2]
-            }
-
-            f.start(username)
-            message.channel.send(username + ' has joined the game with ' + f.getCredits(username) + ' credits')
+        if (args[0] == '!reset') {
+            var player = db.getPlayer(username)
+            player.credits = 10000
+            message.channel.send('You have restarted the game with ' + player.credits + ' credits')
         }
 
         if (args[0] == '!credits') {
             var credits = f.getCredits(username)
-            if (credits == -1) {
-                message.channel.send('Player not found. To start playing, enter !start')
-            }
-            else {
-                message.channel.send('You have ' + credits + ' credits')
-            }
+            message.channel.send('You have ' + credits + ' credits')
         }
 
         if (args[0] == '!dice') {

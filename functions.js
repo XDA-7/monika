@@ -24,27 +24,8 @@ var db = require('./db').db
 /**
  * @param {string} username
  */
-module.exports.start = function (username) {
-    var player = db.getPlayer(username)
-    if (player) {
-        player.credits = 10000
-    }
-    else {
-        db.players.push({ name: username, credits: 10000 })
-    }
-}
-
-/**
- * @param {string} username
- */
 module.exports.getCredits = function (username) {
-    var player = db.getPlayer(username)
-    if (player) {
-        return player.credits
-    }
-    else {
-        return -1
-    }
+    return db.getPlayer(username).credits
 }
 
 /**
@@ -55,10 +36,6 @@ module.exports.getCredits = function (username) {
  */
 module.exports.dice = function (username, betAmount, guess) {
     var player = db.getPlayer(username)
-    if (!player) {
-        return { error: 'player was not found' }
-    }
-
     if (player.credits < betAmount) {
         return { error: 'bet amount exceeds your credits, you have ' + player.credits + ' total credits' }
     }
@@ -89,9 +66,6 @@ module.exports.startBlackjack = function (username, betAmount) {
     }
 
     var player = db.getPlayer(username)
-    if (!player) {
-        return { error: 'player not found' }
-    }
     if (player.credits < betAmount) {
         return { error: 'you don\'t have that many credits to bet, you currrently have ' + player.credits }
     }

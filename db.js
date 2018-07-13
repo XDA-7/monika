@@ -5,9 +5,6 @@ var connectionString = ''
 if (process.env.DATABASE_URL) {
     connectionString = process.env.DATABASE_URL
 }
-else {
-    connectionString = 'postgres://uddurrthmgjxyj:9d8f0dcc5c567652b65bb91f6fa05329128c451902a4524ee77a0e9e60f3976b@ec2-54-227-240-7.compute-1.amazonaws.com:5432/dctp29alhhddar'
-}
 
 var client = new Client({
     connectionString: connectionString,
@@ -40,7 +37,7 @@ var client = new Client({
 /**
  * @namespace
  */
-module.exports.db = {
+var db = {
     /**
      * @type {Array<Player>}
      */
@@ -106,11 +103,12 @@ module.exports.db = {
      */
     getPlayer: function (username) {
         var player = this.players.filter(function(player) { return player.name == username })
-        if (player.length == 1) {
-            return player[0]
+        if (player.length == 0) {
+            player.push({ name: username, credits: 10000 })
+            this.players.push(player[0])
         }
-        
-        return undefined
+
+        return player[0]
     },
 
     /**
@@ -166,7 +164,9 @@ module.exports.db = {
                 console.log(err)
             }
             else {
-                self.players = JSON.parse(data).players
+                var gameState = JSON.parse(data) 
+                self.players = gameState.players
+                self.blackjackGames = gameState.blackjackGames
             }
         })
     },
@@ -187,9 +187,16 @@ module.exports.db = {
     help:
     '!just: monika\n' +
     '!anxiety: some encouragement for when you\'re feeling down or inadequate\n' +
-    '!start: start playing in the casino, starting with 10000 credits\n' +
     '!credits: check your current credit balance\n' +
+    '!reset: reset your credits to 10000\n' +
     '!dice: guess the result of a dice roll. First number is the amount you want to bet, second number is your guess\n' +
     '!blackjack: play a game of blackjack. Enter the amount you want to bet\n' +
     '!hit, !sit: options while in a game of blackjack'
 }
+
+if (connectionString == '') {
+    db.save = db.saveToFile
+    db.load = db.loadFromFile
+}
+
+module.exports.db = db
