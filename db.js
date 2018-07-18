@@ -35,6 +35,25 @@ var client = new Client({
  */
 
 /**
+ * @typedef {Object} BlackjackLastBet
+ * @property {string} username
+ * @property {number} betAmount
+ */
+
+ /**
+  * @typedef {Object} RouletteBet
+  * @property {number} betAmount
+  * @property {Array<number>} betSquares
+  */
+
+ /**
+  * @typedef {Object} RouletteGame
+  * @property {string} username
+  * @property {boolean} gameEnded
+  * @property {Array<RouletteBet>} bets
+  */
+
+/**
  * @namespace
  */
 var db = {
@@ -98,6 +117,56 @@ var db = {
     blackjackGames: [],
 
     /**
+     * @type {Array<BlackjackLastBet>}
+     */
+    blackjackLastBets: [],
+
+    /**
+     * @type {Array<number>}
+     */
+    rouletteRouge: [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36],
+
+    /**
+     * @type {Array<number>}
+     */
+    rouletteNoir: [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35],
+
+    /**
+     * @type {Array<Array<number>>}
+     */
+    rouletteSplits: [],
+
+    /**
+     * @type {Array<Array<number>>}
+     */
+    rouletteStreets: [],
+
+    /**
+     * @type {Array<Array<number>>}
+     */
+    rouletteCorners: [],
+
+    /**
+     * @type {Array<Array<number>>}
+     */
+    rouletteDoubleStreets: [],
+
+    /**
+     * @type {Array<Array<number>>}
+     */
+    rouletteTrios: [[0, 1, 2], [0, 2, 3]],
+
+    /**
+     * @type {Array<number>}
+     */
+    rouletteFirstFour: [0, 1, 2, 3],
+
+    /**
+     * @type {Array<RouletteGame>}
+     */
+    rouletteGames: [],
+
+    /**
      * @param {string} username
      * @returns {Player}
      */
@@ -122,6 +191,47 @@ var db = {
         }
         
         return undefined
+    },
+
+    /**
+     * @param {string} username
+     * @returns {BlackjackLastBet}
+     */
+    getLastBlackjackBet: function (username) {
+        var lastBet = this.blackjackLastBets.filter(function(lastBet) { return lastBet.username == username })
+        if (lastBet.length == 1) {
+            return lastBet[0].betAmount
+        }
+
+        return 0;
+    },
+
+    /**
+     * @param {string} username
+     * @param {number} betAmount
+     */
+    setLastBlackjackBet: function (username, betAmount) {
+        var lastBet = this.blackjackLastBets.filter(function(lastBet) { return lastBet.username == username })
+        if (lastBet.length == 1) {
+            lastBet[0].betAmount = betAmount
+        }
+        else {
+            this.blackjackLastBets.push({ username: username, betAmount: betAmount })
+        }
+    },
+
+    /**
+     * @param {string} username
+     * @returns {RouletteGame}
+     */
+    getRouletteGame: function (username) {
+        var game = this.rouletteGames.filter(function(game) { return game.username == username && !game.gameEnded })
+        if (game.length == 0) {
+            game.push({ username: username, gameEnded: false, bets: [] })
+            this.rouletteGames.push(game[0])
+        }
+
+        return game[0]
     },
 
     save: function() {
@@ -149,6 +259,7 @@ var db = {
                     var gameState = JSON.parse(res.rows[0].value)
                     self.players = gameState.players
                     self.blackjackGames = gameState.blackjackGames
+                    self.blackjackLastBets = gameState.blackjackLastBets
                 }
                 else {
                     client.query('INSERT INTO game_state (value) VALUES($1)', [JSON.stringify(self)])
@@ -167,6 +278,7 @@ var db = {
                 var gameState = JSON.parse(data) 
                 self.players = gameState.players
                 self.blackjackGames = gameState.blackjackGames
+                self.blackjackLastBets = gameState.blackjackLastBets
             }
         })
     },

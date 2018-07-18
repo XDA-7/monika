@@ -50,7 +50,7 @@ module.exports.dice = function (username, betAmount, guess) {
 
     player.credits += payout
     return {
-        message: 'Rolled a ' + dieOne + ' and a ' + dieTwo + ' for ' + roll + ' total' + appendPayout(payout)
+        message: 'Rolled a ' + dieOne + ' and a ' + dieTwo + ' for ' + roll + ' total' + appendPayout(payout, player.credits)
     }
 }
 
@@ -69,7 +69,8 @@ module.exports.startBlackjack = function (username, betAmount) {
     if (player.credits < betAmount) {
         return { error: 'you don\'t have that many credits to bet, you currrently have ' + player.credits }
     }
-
+    
+    db.setLastBlackjackBet(username, betAmount)
     player.credits -= betAmount
     var playerCards = [randomCard(), randomCard()]
     var monikaCards = [randomCard(), randomCard()]
@@ -104,8 +105,9 @@ module.exports.playerHitBlackjack = function(username) {
     var value = blackjackHandValue(game.playerHand)
     var message = ''
     if (value > 21) {
+        var player = db.getPlayer(username)
         game.gameEnded = true
-        message = 'You went bust' + appendPayout(-game.betAmount)
+        message = 'You went bust' + appendPayout(-game.betAmount, player.credits)
     }
     else {
         message = 'You\'re now on ' + value
@@ -125,6 +127,7 @@ module.exports.playerHitBlackjack = function(username) {
  */
 module.exports.playerSitBlackjack = function(username) {
     var game = db.getBlackjackGame(username)
+    var player = db.getPlayer(username)
     if (!game) {
         return { error: 'you aren\'t currently in a game' }
     }
@@ -138,20 +141,18 @@ module.exports.playerSitBlackjack = function(username) {
 
     var message = ''
     if (monikaHandValue > 21 || monikaHandValue < playerHandValue) {
-        var player = db.getPlayer(username)
         // payout of 3:2 but the bet amount was already deducted from the player
         player.credits += Math.floor(game.betAmount * 2.5)
         message = (monikaHandValue > 21) ? 'Dealer bust!' : 'You win!'
-        message += appendPayout(Math.floor(game.betAmount * 1.5))
+        message += appendPayout(Math.floor(game.betAmount * 1.5), player.credits)
     }
     else if (monikaHandValue == playerHandValue) {
-        var player = db.getPlayer(username)
         player.credits += Math.floor(game.betAmount)
         message = 'It\'s a tie'
     }
     else {
         message = 'House wins' +
-        appendPayout(-game.betAmount)
+        appendPayout(-game.betAmount, player.credits)
     }
 
     game.gameEnded = true
@@ -186,15 +187,16 @@ function randomNumber(range) {
 }
 
 /**
- * @param {number} payout 
+ * @param {number} payout
+ * @param {number} playerCredits
  * @returns {string}
  */
-function appendPayout(payout) {
+function appendPayout(payout, playerCredits) {
     if (payout > 0) {
-        return '\nYou have won ' + payout + ' credits!'
+        return '\nYou have won ' + payout + ' credits!\nYou now have ' + playerCredits + ' credits'
     }
     else {
-        return '\nYou have lost ' + -payout + ' credits'
+        return '\nYou have lost ' + -payout + ' credits\nYou now have ' + playerCredits + ' credits'
     }
 }
 

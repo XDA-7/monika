@@ -1,0 +1,29 @@
+Inside bets
+Straight (single)
+Split (double)
+Street (horizontal triple)
+Corner (quadruple)
+Double street (adjacent horizontal triples)
+Trio (0, 1, 2 or 0, 2, 3)
+First four (0, 1, 2, 3)
+
+Outside bets
+Manque/Passe (1-18, 19-36)
+Rouge/Noir (red/black)
+Pair/Impair (even/odd)
+Dozen bet (1st, 2nd or 3rd dozen)
+Column bet
+
+Colors
+r, b, r
+b, r, b
+r, b, r
+b, b, r
+b, r, b
+r, b, r
+r, b, r
+b, r, b
+r, b, r
+b, b, r
+b, r, b
+r, b, r

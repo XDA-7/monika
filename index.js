@@ -11,7 +11,7 @@ client.on('ready', function() {
 
 client.on('message', function(message) {
     if (message == '!version') {
-        message.channel.send('v0.1.1')
+        message.channel.send('v0.1.2')
     }
 
     if (message == '!help') {
@@ -54,12 +54,20 @@ client.on('message', function(message) {
             message.channel.send(userMessage)
         }
 
-        if (args[0] == '!blackjack') {
-            if (args.length < 2) {
+        if (args[0] == '!blackjack' || args[0] == '!21') {
+            var betAmount = 0
+            if (args.length == 2) {
+                betAmount = args[1]
+            }
+            else {
+                betAmount = db.getLastBlackjackBet(username)
+            }
+
+            if (betAmount == 0) {
                 message.channel.send('You need to enter a bet amount')
             }
             else {
-                var startBlackjackResult = f.startBlackjack(username, args[1])
+                var startBlackjackResult = f.startBlackjack(username, betAmount)
                 if (startBlackjackResult.error) {
                     message.channel.send('Error! ' + startBlackjackResult.error)
                 }
@@ -96,7 +104,7 @@ client.on('message', function(message) {
             }
         }
 
-        if (args[0] == '!hit') {
+        if (args[0] == '!hit' || args[0] == '!h') {
             var blackjackHitResult = f.playerHitBlackjack(username)
             if (blackjackHitResult.error) {
                 message.channel.send('Error! ' + blackjackHitResult.error)
@@ -129,7 +137,7 @@ client.on('message', function(message) {
             }
         }
 
-        if (args[0] == '!sit') {
+        if (args[0] == '!sit' || args[0] == '!s') {
             var blackjackSitResult = f.playerSitBlackjack(username)
             if (blackjackSitResult.error) {
                 message.channel.send('Error! ' + blackjackSitResult.error)
