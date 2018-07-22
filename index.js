@@ -42,7 +42,7 @@ client.on('message', function(message) {
         }
 
         if (args[0] == '!dice') {
-            var diceResult = f.dice(username, Number.parseInt(args[1]), Number.parseInt(args[2]))
+            var diceResult = f.dice(username, +args[1], +args[2])
             var userMessage = ''
             if (diceResult.error) {
                 userMessage = 'Error! ' + diceResult.error
@@ -57,7 +57,7 @@ client.on('message', function(message) {
         if (args[0] == '!blackjack' || args[0] == '!21') {
             var betAmount = 0
             if (args.length == 2) {
-                betAmount = args[1]
+                betAmount = +args[1]
             }
             else {
                 betAmount = db.getLastBlackjackBet(username)
@@ -178,6 +178,29 @@ client.on('message', function(message) {
             }
         }
 
+        if (args[0] == '!roulette' || args[0] == '!r') {
+        }
+
+        if (args[0] == '!spin') {
+            var rouletteSpinResult = f.rouletteSpin(username)
+            if (rouletteSpinResult.error) {
+                message.channel.send(rouletteSpinResult.error)
+            }
+            else {
+                message.channel.send(rouletteSpinResult.numbersSpun[0])
+                .then(function(spinMessage) {
+                    for (var i = 1; i < rouletteSpinResult.numbersSpun.length; i++) {
+                        setTimeout(
+                            function() {
+                                spinMessage.edit(rouletteSpinResult.numbersSpun.pop())
+                            },
+                            i * 500
+                        )
+                    }
+                })
+            }
+        }
+
         if (args[0] == '!debug' && username == 'XDA-7') {
             if (args[1] == 'db') {
                 message.channel.send(JSON.stringify(db))
@@ -240,8 +263,13 @@ client.on('message', function(message) {
             }
             else if (args[1] == 'bjhandvalue') {
                 message.channel.send(f.blackjackHandValue(args.slice(2).map(function(value) {
-                    return { value: Number.parseInt(value) }
+                    return { value: +value }
                 })))
+            }
+            else if (args[1] == 'betSquares') {
+                var betSquaresResult = f.getBetSquares(args.slice(2))
+                message.channel.send(betSquaresResult.isValid)
+                message.channel.send(betSquaresResult.result)
             }
             else if (args[1] == 'edit') {
                 var lastMessage = message.channel.messages.array()
@@ -257,6 +285,18 @@ client.on('message', function(message) {
                 else {
                     message.channel.send('I haven\'t sent a message since last restart')
                 }
+            }
+            else if (args[1] == 'splits') {
+                message.channel.send(db.rouletteSplits)
+            }
+            else if (args[1] == 'street') {
+                message.channel.send(db.rouletteStreets)
+            }
+            else if (args[1] == 'corner') {
+                message.channel.send(db.rouletteCorners)
+            }
+            else if (args[1] == 'doublestreet') {
+                message.channel.send(db.rouletteDoubleStreets)
             }
         }
         else if (args[0] == '!debug') {

@@ -6,14 +6,21 @@ var db = require('./db').db
  * @property {string} message
  */
 
- /**
-  * @typedef {Object} BlackjackResult
-  * @property {string} error
-  * @property {string} message
-  * @property {string} handMessageId
-  * @property {Array<string>} playerHand
-  * @property {Array<string>} monikaHand
-  */
+/**
+ * @typedef {Object} BlackjackResult
+ * @property {string} error
+ * @property {string} message
+ * @property {string} handMessageId
+ * @property {Array<string>} playerHand
+ * @property {Array<string>} monikaHand
+ */
+
+/**
+ * @typedef {Object} RouletteResult
+ * @property {string} error
+ * @property {string} message
+ * @property {Array<number>} numbersSpun
+ */
 
 /**
  * @typedef {Object} Card
@@ -165,6 +172,166 @@ module.exports.playerSitBlackjack = function(username) {
 }
 
 /**
+ * @param {string} username 
+ * @param {Array<string>} args
+ * @returns {GameResult} 
+ */
+module.exports.rouletteBet = function(username, args) {
+    var betAmount = +args[0]
+    if (isNaN(betAmount)) {
+        return { error: 'You need to enter a bet amount' }
+    }
+
+    var player = db.getPlayer(username)
+    if (betAmount > player.credits) {
+        return { error: 'You\'ve tried to bet more than you have, you currently have ' + player.credits + ' credits' }
+    }
+
+    var game = db.getRouletteGame(username)
+
+    var outsideBet = args[1]
+
+    if (outsideBet == 'manque') {
+        game.bets.push({ betAmount: betAmount, betSquares: db.rouletteManque })
+    }
+    else if (outsideBet == 'passe') {
+        game.bets.push({ betAmount: betAmount, betSquares: db.roulettePasse })
+    }
+    else if (outsideBet == 'rouge') {
+        game.bets.push({ betAmount: betAmount, betSquares: db.rouletteRouge })
+    }
+    else if (outsideBet == 'noir') {
+        game.bets.push({ betAmount: betAmount, betSquares: db.rouletteNoir })
+    }
+    else if (outsideBet == 'pair') {
+        game.bets.push({ betAmount: betAmount, betSquares: db.roulettePair })
+    }
+    else if (outsideBet == 'impair') {
+        game.bets.push({ betAmount: betAmount, betSquares: db.rouletteImpair })
+    }
+    else if (outsideBet == 'dozen') {
+        var dozenNumber = +args[2]
+        if (isNaN(dozenNumber)) {
+            return { error: 'You need to enter the dozen you want' }
+        }
+        
+        if (dozenNumber < 1 || dozenNumber > 3) {
+            return { error: 'You need to pick dozen 1, 2 or 3' }
+        }
+
+        game.bets.push({
+            betAmount: betAmount,
+            betSquares: db.rouletteDozens[dozenNumber - 1]
+        })
+    }
+    else if (outsideBet == 'column') {
+        var columnNumber = +args[2]
+        if (!isNaN(columnNumber)) {
+            return { error: 'You need to enter the column you want' }
+        }
+
+        if (columnNumber < 1 || columnNumber > 3) {
+            return { error: 'You need to pick column 1, 2 or 3' }
+        }
+
+        game.bets.push({
+            betAmount: betAmount,
+            betSquares: db.rouletteColumns[columnNumber - 1]
+        })
+    }
+
+    var insideBet = getBetSquares(args.slice(1))
+    if (insideBet.isValid) {
+        game.bets.push({ betAmount: betAmount, betSquares: insideBet.result })
+    }
+}
+
+/**
+ * @typedef {Object} BetSquaresResult
+ * @property {boolean} isValid
+ * @property {Array<number>} result
+ */
+
+/**
+ * @param {Array<string>} args
+ * @returns {BetSquaresResult}
+ */
+function getBetSquares(args) {
+    var numericArgs = args.map(function(arg) {
+        return +arg
+    })
+
+    var containsNaNs = numericArgs.reduce(
+        function(last, current) {
+            return isNaN(current) || last
+        },
+        false
+    )
+
+    if (containsNaNs) {
+        return { isValid: false }
+    }
+    
+    numericArgs.sort()
+    var isValidBet = false
+    /**
+     * @param {Array<Array<number>>} numberSet
+     * @returns {boolean}
+     */
+    var argsTest = function(numberSet) { return containsNumberArray(numericArgs, numberSet) }
+    if (numericArgs.length == 1) {
+        isValidBet = true
+    }
+    else if (numericArgs.length == 2) {
+        isValidBet = argsTest(db.rouletteSplits)
+    }
+    else if (numericArgs.length == 3) {
+        isValidBet = argsTest(db.rouletteStreets) || argsTest(db.rouletteTrios)
+    }
+    else if (numericArgs.length == 4) {
+        isValidBet = argsTest(db.rouletteCorners) || argsTest(db.rouletteFirstFour)
+    }
+    else if (numericArgs.length == 6) {
+        isValidBet = argsTest(db.rouletteDoubleStreets)
+    }
+
+    if (isValidBet) {
+        return { isValid: true, result: numericArgs }
+    }
+
+    return { isValid: false }
+}
+
+/**
+ * @param {Array<number>} array 
+ * @param {Array<Array<number>>} doubleArray 
+ * @returns {boolean}
+ */
+function containsNumberArray(array, doubleArray) {
+    var matchingArray = doubleArray.filter(function(testArray) {
+        return array.reduce(
+            function(last, current, index) {
+                return last && (current == testArray[index])
+            },
+            true
+        )
+    })
+
+    return matchingArray.length > 0
+}
+
+/**
+ * @param {string} username 
+ * @returns {RouletteResult}
+ */
+module.exports.rouletteSpin = function(username) {
+    var finalNumberIndex = randomNumber(37) - 1
+    var resultSet = db.rouletteWheel.slice(finalNumberIndex, finalNumberIndex + 6)
+    var chosenNumber = resultSet[0]
+    return { numbersSpun: resultSet }
+}
+
+/**
  * @returns {Card}
  */
 function randomCard() {
@@ -259,3 +426,4 @@ function blackjackHandValue(hand) {
 }
 
 module.exports.blackjackHandValue = blackjackHandValue
+module.exports.getBetSquares = getBetSquares
