@@ -304,9 +304,30 @@ var db = {
 
                 if (res.rowCount == 1) {
                     var gameState = JSON.parse(res.rows[0].value)
-                    self.players = gameState.players
-                    self.blackjackGames = gameState.blackjackGames
-                    self.blackjackLastBets = gameState.blackjackLastBets
+                    if (gameState.players) {
+                        self.players = gameState.players
+                    }
+                    else {
+                        self.players = []
+                    }
+                    if (gameState.blackjackGames) {
+                        self.blackjackGames = gameState.blackjackGames
+                    }
+                    else {
+                        self.blackjackGames = []
+                    }
+                    if (gameState.blackjackLastBets) {
+                        self.blackjackLastBets = gameState.blackjackLastBets
+                    }
+                    else {
+                        self.blackjackLastBets = []
+                    }
+                    if (gameState.rouletteGames) {
+                        self.rouletteGames = gameState.rouletteGames
+                    }
+                    else {
+                        self.rouletteGames = []
+                    }
                 }
                 else {
                     client.query('INSERT INTO game_state (value) VALUES($1)', [JSON.stringify(self)])
@@ -323,9 +344,30 @@ var db = {
             }
             else {
                 var gameState = JSON.parse(data) 
-                self.players = gameState.players
-                self.blackjackGames = gameState.blackjackGames
-                self.blackjackLastBets = gameState.blackjackLastBets
+                if (gameState.players) {
+                    self.players = gameState.players
+                }
+                else {
+                    self.players = []
+                }
+                if (gameState.blackjackGames) {
+                    self.blackjackGames = gameState.blackjackGames
+                }
+                else {
+                    self.blackjackGames = []
+                }
+                if (gameState.blackjackLastBets) {
+                    self.blackjackLastBets = gameState.blackjackLastBets
+                }
+                else {
+                    self.blackjackLastBets = []
+                }
+                if (gameState.rouletteGames) {
+                    self.rouletteGames = gameState.rouletteGames
+                }
+                else {
+                    self.rouletteGames = []
+                }
             }
         })
     },

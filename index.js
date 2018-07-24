@@ -179,6 +179,13 @@ client.on('message', function(message) {
         }
 
         if (args[0] == '!roulette' || args[0] == '!r') {
+            var rouletteBetResult = f.rouletteBet(username, args.slice(1))
+            if (rouletteBetResult.error) {
+                message.channel.send('Error! ' + rouletteBetResult.error)
+            }
+            else {
+                message.channel.send(rouletteBetResult.message)
+            }
         }
 
         if (args[0] == '!spin') {
@@ -187,9 +194,10 @@ client.on('message', function(message) {
                 message.channel.send(rouletteSpinResult.error)
             }
             else {
-                message.channel.send(rouletteSpinResult.numbersSpun[0])
+                var numbersSpinLength = rouletteSpinResult.numbersSpun.length
+                message.channel.send(rouletteSpinResult.numbersSpun.pop())
                 .then(function(spinMessage) {
-                    for (var i = 1; i < rouletteSpinResult.numbersSpun.length; i++) {
+                    for (var i = 1; i < numbersSpinLength; i++) {
                         setTimeout(
                             function() {
                                 spinMessage.edit(rouletteSpinResult.numbersSpun.pop())
@@ -197,6 +205,13 @@ client.on('message', function(message) {
                             i * 500
                         )
                     }
+
+                    setTimeout(
+                        function() {
+                            message.channel.send(rouletteSpinResult.message)
+                        },
+                        numbersSpinLength * 500 + 1000
+                    )
                 })
             }
         }
@@ -297,6 +312,9 @@ client.on('message', function(message) {
             }
             else if (args[1] == 'doublestreet') {
                 message.channel.send(db.rouletteDoubleStreets)
+            }
+            else if (args[1] == 'roulettegames') {
+                message.channel.send(JSON.stringify(db.rouletteGames))
             }
         }
         else if (args[0] == '!debug') {

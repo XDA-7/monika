@@ -239,11 +239,18 @@ module.exports.rouletteBet = function(username, args) {
             betSquares: db.rouletteColumns[columnNumber - 1]
         })
     }
-
-    var insideBet = getBetSquares(args.slice(1))
-    if (insideBet.isValid) {
-        game.bets.push({ betAmount: betAmount, betSquares: insideBet.result })
+    else {
+        var insideBet = getBetSquares(args.slice(1))
+        if (insideBet.isValid) {
+            game.bets.push({ betAmount: betAmount, betSquares: insideBet.result })
+        }
+        else {
+            return { error: 'Invalid bet' }
+        }
     }
+
+    player.credits -= betAmount
+    return { message: 'Bet successful' }
 }
 
 /**
@@ -325,10 +332,32 @@ function containsNumberArray(array, doubleArray) {
  * @returns {RouletteResult}
  */
 module.exports.rouletteSpin = function(username) {
+    var game = db.getRouletteGame(username)
+    var player = db.getPlayer(username)
     var finalNumberIndex = randomNumber(37) - 1
     var resultSet = db.rouletteWheel.slice(finalNumberIndex, finalNumberIndex + 6)
     var chosenNumber = resultSet[0]
-    return { numbersSpun: resultSet }
+    var totalBetAmount = 0
+    var winnings = 0
+    for (var i = 0; i < game.bets.length; i++) {
+        var bet = game.bets[i]
+        totalBetAmount += bet.betAmount
+        var matchingNumbers = bet.betSquares.filter(function(number) {
+            return number == chosenNumber
+        })
+        if (matchingNumbers.length == 1) {
+            var betPayout = (36.0 / bet.betSquares.length)
+            winnings += Math.floor(bet.betAmount * betPayout)
+        }
+    }
+
+    player.credits += winnings
+    game.gameEnded = true
+    
+    return {
+        numbersSpun: resultSet,
+        message: 'Round complete' + appendPayout(winnings - totalBetAmount, player.credits)
+    }
 }
 
 /**
