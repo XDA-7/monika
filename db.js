@@ -391,8 +391,30 @@ var db = {
     '!credits: check your current credit balance\n' +
     '!reset: reset your credits to 10000\n' +
     '!dice: guess the result of a dice roll. First number is the amount you want to bet, second number is your guess\n' +
-    '!blackjack: play a game of blackjack. Enter the amount you want to bet\n' +
-    '!hit, !sit: options while in a game of blackjack'
+    '!blackjack | !21: play a game of blackjack. Enter the amount you want to bet\n' +
+    '!hit, !sit: options while in a game of blackjack\n' +
+    '!roulette | !r: place a bet on the roulette table. Enter !r help for more details\n',
+
+    rouletteRefImage: 'https://media.discordapp.net/attachments/462203051739054080/471679645180493824/reference-image.jpg',
+
+    rouletteHelp:
+    'Enter the amount you want to bet, then where you want to place it\n' +
+    'Outside bets:\n' +
+    'Rouge/Noir (red/black) eg. !r 1000 rouge (bet 1000 on red)\n' +
+    'Pair/Impair (even/odd) eg. !r 1000 pair (bet 1000 on evens)\n' +
+    'Manque/Passe (1-18, 19-36) eg. !r manque (bet 1000 on the first 18)\n' +
+    'Dozen eg. !r dozen 2 (bet 1000 on the second dozen)\n' +
+    'Column eg. !r column 3 (bet 1000 on the third column)\n' +
+    'Inside bets:\n' +
+    'Straight: A single number. eg. !r 1000 15 (bet 1000 on 15)\n' +
+    'Split: Any two numbers 1-36 which are next to each other. eg. !r 1000 27 30 (bet 1000 on either 27 or 30)\n' +
+    'Street: Any row. eg. !r 1000 22 23 24 (bet 1000 on 22, 23 or 24)\n' +
+    'Corner: Any four numbers 1-36 that form a square. eg. !r 1000 10 11 13 14\n' +
+    'Double Street: Any two adjacent rows. eg. !r 1000 26 27 28 29 30 31\n' +
+    'Trio: Either 0, 1, 2 or 0, 2, 3. eg. !r 1000 0 1 2\n' +
+    'First Four: 0, 1, 2 and 3. eg. !r 1000 0 1 2 3\n' +
+    '\nYou can place multiple bets on a single spin of the wheel.\n' +
+    'Once you\'re ready, enter !spin. The number will be spun and your payouts and losses transferred automatically.'
 }
 
 if (connectionString == '') {

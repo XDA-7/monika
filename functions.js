@@ -361,6 +361,26 @@ module.exports.rouletteSpin = function(username) {
 }
 
 /**
+ * @param {number} betSquare
+ * @returns {number}
+ */
+module.exports.rouletteColor = function(betSquare) {
+    var matchingBlack = db.rouletteNoir.filter(function(value) {
+        return value == betSquare
+    })
+
+    if (matchingBlack.length == 1) {
+        return 0
+    }
+    else if (betSquare != 0) {
+        return 16711680
+    }
+    else {
+        return 65280
+    }
+}
+
+/**
  * @returns {Card}
  */
 function randomCard() {

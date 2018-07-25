@@ -11,7 +11,7 @@ client.on('ready', function() {
 
 client.on('message', function(message) {
     if (message == '!version') {
-        message.channel.send('v0.1.2')
+        message.channel.send('v0.2.0')
     }
 
     if (message == '!help') {
@@ -179,12 +179,18 @@ client.on('message', function(message) {
         }
 
         if (args[0] == '!roulette' || args[0] == '!r') {
-            var rouletteBetResult = f.rouletteBet(username, args.slice(1))
-            if (rouletteBetResult.error) {
-                message.channel.send('Error! ' + rouletteBetResult.error)
+            if (args[1] == 'help') {
+                message.author.send(db.rouletteRefImage)
+                message.author.send(db.rouletteHelp)
             }
             else {
-                message.channel.send(rouletteBetResult.message)
+                var rouletteBetResult = f.rouletteBet(username, args.slice(1))
+                if (rouletteBetResult.error) {
+                    message.channel.send('Error! ' + rouletteBetResult.error)
+                }
+                else {
+                    message.channel.send(rouletteBetResult.message)
+                }
             }
         }
 
@@ -195,12 +201,35 @@ client.on('message', function(message) {
             }
             else {
                 var numbersSpinLength = rouletteSpinResult.numbersSpun.length
-                message.channel.send(rouletteSpinResult.numbersSpun.pop())
+                var firstNumber = rouletteSpinResult.numbersSpun.pop()
+                message.channel.send(
+                    '',
+                    {
+                        embed: {
+                            color: f.rouletteColor(firstNumber),
+                            fields: [{
+                                name: 'Spinning',
+                                value: firstNumber,
+                                inline: false
+                            }]
+                        }
+                    }
+                )
                 .then(function(spinMessage) {
                     for (var i = 1; i < numbersSpinLength; i++) {
                         setTimeout(
                             function() {
-                                spinMessage.edit(rouletteSpinResult.numbersSpun.pop())
+                                var spinNumber = rouletteSpinResult.numbersSpun.pop()
+                                spinMessage.edit({
+                                    embed: {
+                                        color: f.rouletteColor(spinNumber),
+                                        fields: [{
+                                            name: 'Spinning',
+                                            value: spinNumber,
+                                            inline: false
+                                        }]
+                                    }
+                                })
                             },
                             i * 500
                         )
@@ -300,6 +329,23 @@ client.on('message', function(message) {
                 else {
                     message.channel.send('I haven\'t sent a message since last restart')
                 }
+            }
+            else if (args[1] == 'color') {
+                message.channel.send(
+                    '',
+                    {
+                        embed: {
+                            color: args[2],
+                            fields: [
+                                {
+                                    name: 'name',
+                                    value: 'value',
+                                    inline: false
+                                }
+                            ]
+                        }
+                    }
+                )
             }
             else if (args[1] == 'splits') {
                 message.channel.send(db.rouletteSplits)

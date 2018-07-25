@@ -1,0 +1,3 @@
+CREATE TABLE game_state(
+    value CHARACTER VARYING NOT NULL
+);
